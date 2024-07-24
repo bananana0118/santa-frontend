@@ -15,7 +15,7 @@ const Container = styled.main`
     width: 100vw;
     height: 100vh;
     justify-content: center;
-    background-color: black;
+    background-color: white
 `;
 
 const View = styled.div`
@@ -23,5 +23,5 @@ const View = styled.div`
     background-color: white;
     max-width: 420px;
     height: 100%;
-    border: 1px solid black;
+    border: 1px solid #cecece;
 `;
