@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
@@ -6,12 +6,12 @@ export default function KakaoShare() {
     const onClickKakaoHandler = () => {
         //kakaoSdk부른후 window.kakao로 접근
         if (window.Kakao) {
-            const kakao = window.kakao;
+            const kakao = window.Kakao;
 
             //중복 initialization 방지
             //카카오에서 제공하는 jsㅏkey를 이용하여 initializae
             if (!kakao.isInitialized()) {
-                console.log(process.env.NEXT_PUBLIC_KAKAO_API_KEY)
+                console.log(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
                 kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
             }
 
