@@ -34,7 +34,7 @@ export default function Home() {
                         <TextButtonBox>
                             <TextButton
                                 onClickHandler={() => {
-                                    router.push("/upload");
+                                    router.push("/step/upload");
                                 }}
                             >
                                 사진 업로드

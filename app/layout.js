@@ -4,6 +4,7 @@ import styled from "styled-components";
 import localFont from "next/font/local";
 import { Suspense } from "react";
 import LoadingSpinner from "@/components/loading/LoadingSpinner";
+import NavBar from "@/components/layout/NavBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +17,7 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body>
-                {/* 네브바 */}
+                <NavBar />
                 {children}
             </body>
         </html>
