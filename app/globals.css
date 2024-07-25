@@ -23,13 +23,33 @@ html {
 
 body {
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     height: 100%;
     border: 1px solid #cecece;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+/* styles/globals.css */
+@font-face {
+    font-family: 'PretendardVariable';
+    src: url('/fonts/PretendardVariable.woff2') format('woff2');
+    font-weight: 100 900; /* 폰트 가중치 범위 설정 */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'PretendardVariable';
+    src: url('/fonts/PretendardVariable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: italic;
+}
+
+body {
+    font-family: 'PretendardVariable', sans-serif;
+}
+
 
 img,
 picture,

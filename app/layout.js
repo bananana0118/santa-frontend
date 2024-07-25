@@ -1,6 +1,9 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import styled from "styled-components";
+import localFont from "next/font/local";
+import { Suspense } from "react";
+import LoadingSpinner from "@/components/loading/LoadingSpinner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,7 +18,7 @@ export default function RootLayout({ children }) {
             <body>
                 {/* 네브바 */}
                 {children}
-                </body>
+            </body>
         </html>
     );
 }
