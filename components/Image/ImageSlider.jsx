@@ -4,8 +4,9 @@ import styled from "styled-components";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Image from "next/image";
+import UploadButton from "../button/UploadButton";
 
-export default function ImageSlider({ images }) {
+export default function ImageSlider({ images, setImages }) {
     const settings = {
         speed: 500,
         infinite: false,
@@ -17,12 +18,16 @@ export default function ImageSlider({ images }) {
     return (
         <SliderContainer>
             <Slider {...settings}>
-                <AddImage>첫번째 이미지 요소</AddImage>
+                <UploadButton
+                    images={images}
+                    setImages={setImages}
+                ></UploadButton>
                 {images.map((src, index) => (
-                    <Group key={index}>
+                    <Group key={index} className="slide-group">
                         <SlideImage src={src} alt={`Slide ${index}`} />
                     </Group>
                 ))}
+                <NullDiv></NullDiv>
             </Slider>
         </SliderContainer>
     );
@@ -30,7 +35,7 @@ export default function ImageSlider({ images }) {
 
 const SliderContainer = styled.div`
     width: 100%;
-    .slick-slide img {
+    .slick-slide .slide-group img {
         width: auto;
         height: 80px;
     }
@@ -44,17 +49,22 @@ const SliderContainer = styled.div`
         align-items: center;
         padding: 0 10px; /* 각 슬라이드에 패딩을 줘서 간격을 만듦 */
     }
+
+    .slick-slide .first > div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 `;
 
 const SlideImage = styled.img`
     width: 80px;
     border-radius: 8px;
 `;
-
-const AddImage = styled.div`
-    background-color: white;
+const NullDiv = styled.div`
+    opacity: 0;
     height: 80px;
-    width: auto;
+    width: 10px;
     border-radius: 8px;
 `;
 

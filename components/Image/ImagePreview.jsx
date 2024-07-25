@@ -4,11 +4,7 @@ import styled from "styled-components";
 export default function ImagePreview({ src }) {
     return (
         <PreviewContainer>
-            {src ? (
-                <ImageButton>사진을 업로드해 주세요</ImageButton>
-            ) : (
-                <PreviewImage src={src} alt="Preview" />
-            )}
+            <PreviewImage src={src} alt="Preview" />
         </PreviewContainer>
     );
 }
@@ -23,15 +19,6 @@ const PreviewContainer = styled.div`
     padding: 16px;
     border-radius: 8px;
     background-color: #fff;
-`;
-
-const ImageButton = styled.button`
-    display: flex;
-    justify-content: center;
-    color:white;
-    padding:30px;
-    align-items: center;
-    background-color: black;
 `;
 
 const PreviewImage = styled.img`
