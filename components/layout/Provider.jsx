@@ -12,7 +12,7 @@ export default function Provider({ children }) {
         y1: 0,
         y2: 0,
     }); // 이미지 데이터를 저장할 상태 추가
-    const [selectedMaskId, setSelectedMaskId] = useState({});
+    const [selectedMaskId, setSelectedMaskId] = useState();
 
     return (
         <FileContext.Provider

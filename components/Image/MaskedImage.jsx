@@ -10,6 +10,7 @@ import {
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import useImage from "use-image";
 import styled from "styled-components";
+import { useFile } from "../layout/Provider";
 
 const transformDataToMasks = (data) => {
     if (!data) return []; // data가 없을 경우 빈 배열 반환
@@ -22,8 +23,10 @@ const transformDataToMasks = (data) => {
     }));
 };
 
+
 const MaskedImage = ({ src, coords, setSelectedMask, selectedMask }) => {
     const [image] = useImage(src);
+    const { setSelectedMaskId } = useFile();
     const imageRef = useRef(null);
     const stageRef = useRef(null);
     const imageLayerRef = useRef(null);
@@ -31,8 +34,11 @@ const MaskedImage = ({ src, coords, setSelectedMask, selectedMask }) => {
     const masks = transformDataToMasks(coords);
     const onClickMaskHandler = (e) => {
         const { name } = e.currentTarget.attrs;
-        console.log(name);
+        console.log(name)
         setSelectedMask(name);
+        setSelectedMaskId(name); //마스크 넣고
+        
+
     };
 
     const handleWheel = (e) => {

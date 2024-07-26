@@ -5,6 +5,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Image from "next/image";
 import UploadButton from "../button/UploadButton";
+import XButton from "../button/XButton";
+import XButtonOnImage from "../button/XButtonOnImage";
 
 export default function ImageSlider({ images, setImages }) {
     const settings = {
@@ -14,7 +16,10 @@ export default function ImageSlider({ images, setImages }) {
         slidesToScroll: 1,
         arrows: false,
         focusOnSelect: false,
+    };
 
+    const onClickHandler = (index) => {
+        setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     };
 
     return (
@@ -26,6 +31,10 @@ export default function ImageSlider({ images, setImages }) {
                 ></UploadButton>
                 {images.map((src, index) => (
                     <Group key={index} className="slide-group">
+                        <XButtonOnImage
+                            index={index}
+                            onClickHandler={onClickHandler}
+                        ></XButtonOnImage>
                         <SlideImage src={src} alt={`Slide ${index}`} />
                     </Group>
                 ))}
@@ -70,6 +79,7 @@ const NullDiv = styled.div`
 `;
 
 const Group = styled.div`
+    position: relative; /* XButton 위치를 절대 위치로 설정하기 위해 상대 위치 지정 */
     display: flex;
     justify-content: center;
     align-items: center;

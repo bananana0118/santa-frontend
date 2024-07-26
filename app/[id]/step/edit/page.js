@@ -12,36 +12,45 @@ import dynamic from "next/dynamic";
 import MaskedAddImage from "@/components/Image/MaskedAddImage";
 import { api } from "@/apis/apis";
 import { useParams } from "next/navigation";
-
-const testTargetimages = [
-    "/images/circleImage.png",
-    "https://via.placeholder.com/80",
-    "https://via.placeholder.com/80",
-    "https://via.placeholder.com/80",
-    "https://via.placeholder.com/80",
-    "https://via.placeholder.com/80",
-    // 더 많은 이미지 경로를 추가하세요
-];
+import JSZip from "jszip";
 
 const NoSSRComponent = dynamic(() => import("@/components/Image/MaskedImage"), {
     ssr: false,
 });
+const fetchCroppedImages = async ({ groupId, humanId, setImages }) => {
+    try {
+        const response = await api.post(
+            "/get_cropped_imgs",
+            {
+                groupId: groupId,
+                humanId: humanId,
+            },
+            {
+                responseType: "blob", // Response type을 blob으로 설정하여 바이너리 데이터를 수신합니다.
+            }
+        );
+
+        const zip = await JSZip.loadAsync(response.data);
+        const images = [];
+
+        for (const filename of Object.keys(zip.files)) {
+            const file = await zip.file(filename).async("blob");
+            images.push(URL.createObjectURL(file));
+        }
+
+        setImages(images);
+    } catch (error) {
+        console.error("Error fetching cropped images:", error);
+    }
+};
 
 export default function Edit({ loading }) {
-    const { filename } = useFile();
+    const { filename, selectedMaskId } = useFile();
     const fileInputRef = useRef(null);
     const [sprite, setSprite] = useState(null);
     const params = useParams();
     const { id } = params;
     const [coords, setCoords] = useState(null);
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0]; // 수정된 부분
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setSprite(url);
-        }
-    };
 
     const [activeTab, setActiveTab] = useState("changeFace");
     const [selectedMask, setSelectedMask] = useState();
@@ -55,6 +64,15 @@ export default function Edit({ loading }) {
 
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [selectedImage, setSelectedImage] = useState(images[0]);
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]; // 수정된 부분
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setSprite(url);
+        }
+    };
+
     const handleImageChange = (currentImage) => {
         setSelectedImage(currentImage);
     };
@@ -66,7 +84,9 @@ export default function Edit({ loading }) {
     useEffect(() => {
         const fetchCoords = async () => {
             try {
-                const response = await api.post("/get_coord", { groupId:Number(id) });
+                const response = await api.post("/get_coord", {
+                    groupId: Number(id),
+                });
                 setCoords(response.data);
             } catch (error) {
                 console.error("Error fetching coordinates:", error);
@@ -75,6 +95,21 @@ export default function Edit({ loading }) {
 
         fetchCoords();
     }, [id]);
+
+    useEffect(() => {
+        //async함수로 코드 만들어서 setTargetImages 에 값저장한다.
+        const fetchTargetImage = async () => {
+            if (selectedMaskId) {
+                await fetchCroppedImages({
+                    groupId: Number(id),
+                    humanId: selectedMaskId,
+                    setImages: setTargetImages,
+                });
+            }
+        };
+
+        fetchTargetImage();
+    }, [selectedMaskId, id]);
 
     return (
         <Container>
@@ -114,7 +149,7 @@ export default function Edit({ loading }) {
             <Bottom activeTab={activeTab}>
                 {activeTab === "changeFace" && (
                     <Content>
-                        <UserImageSlider images={testTargetimages} />
+                        <UserImageSlider images={targetImages} />
                     </Content>
                 )}
                 {activeTab === "addPerson" && (
@@ -177,27 +212,6 @@ const Bottom = styled.div`
     align-items: center;
     background-color: white;
 `;
-const BottomActions = styled.div`
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    gap: 10px;
-    padding: 16px;
-`;
-
-const ActionButton = styled.button`
-    padding: 10px 20px;
-    width: 100%;
-    background-color: #000;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    &:hover {
-        background-color: rgba(0, 0, 0, 0.8); /* 검정색 배경과 80% 투명도 */
-        cursor: pointer;
-    }
-`;
 
 const InputButton = styled.div`
     display: flex;
@@ -208,18 +222,6 @@ const InputButton = styled.div`
     padding: 16px;
     border-radius: 8px;
     background-color: black;
-`;
-
-const InputButtonContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid #ededed;
-    width: 95%;
-    height: 80%;
-    padding: 16px;
-    border-radius: 8px;
-    background-color: #fff;
 `;
 
 const BottomTab = styled.div`
