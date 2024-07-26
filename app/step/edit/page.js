@@ -8,6 +8,7 @@ import ImageSlider from "@/components/Image/ImageSlider";
 import { useFile } from "@/components/layout/Provider";
 import MaskedImage from "@/components/Image/MaskedImage";
 import UserImageSlider from "@/components/Image/UserImageSlider";
+import dynamic from "next/dynamic";
 
 const testTargetimages = [
     "/images/circleImage.png",
@@ -18,6 +19,10 @@ const testTargetimages = [
     "https://via.placeholder.com/80",
     // 더 많은 이미지 경로를 추가하세요
 ];
+
+const NoSSRComponent = dynamic(() => import("@/components/Image/MaskedImage"), {
+    ssr: false,
+  });
 
 export default function Edit({ loading }) {
     const { filename } = useFile();
