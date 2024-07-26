@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
@@ -7,20 +8,17 @@ export default function KakaoShare() {
         //kakaoSdk부른후 window.kakao로 접근
         if (window.Kakao) {
             const kakao = window.Kakao;
-
             //중복 initialization 방지
             //카카오에서 제공하는 jsㅏkey를 이용하여 initializae
             if (!kakao.isInitialized()) {
-                console.log(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
                 kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
             }
 
             kakao.Share.sendDefault({
                 objectType: "feed",
                 content: {
-                    title: "테스트",
-                    description: "테스트",
-                    imageUrl: "adas",
+                    title: "사진을 공유했어요!",
+                    description: "사진을 확인해주세요",
                     link: {
                         mobileWebUrl: "",
                         webUrl: "",
@@ -41,10 +39,20 @@ export default function KakaoShare() {
     }, []);
 
     return (
-        <div>
-            <KakaoShareBtn onClick={onClickKakaoHandler}>asd</KakaoShareBtn>
-        </div>
+        <KakaoShareBtn onClick={onClickKakaoHandler}>
+            <Image
+                src={"/svgIcon/kakaoShare.svg"}
+                alt="카카오톡 공유하기"
+                width={52}
+                height={52}
+            />
+        </KakaoShareBtn>
     );
 }
 
-const KakaoShareBtn = styled.button``;
+const KakaoShareBtn = styled.div`
+    &:hover {
+        cursor: pointer;
+   
+    }
+`;

@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import Slider from "react-slick";
 import styled from "styled-components";
 
-export default function UserImageSlider({ images }) {
+export default function UserImageSlider({ images, imageSize, viewCount }) {
     const settings = {
         infinite: false,
-        slidesToShow: 4,
+        slidesToShow: viewCount ? viewCount : 4,
         slidesToScroll: 1,
-        arrows: true,
+        arrows: false,
         draggable: true,
         focusOnSelect: false,
     };
@@ -23,6 +23,8 @@ export default function UserImageSlider({ images }) {
                     <ImageWrapper key={index}>
                         <Image
                             src={src}
+                            width={imageSize}
+                            height={imageSize}
                             alt={`Image ${index}`}
                             onClick={() => handleImageClick(index)}
                             isSelected={selectedImage === index}
@@ -37,12 +39,10 @@ export default function UserImageSlider({ images }) {
 const SliderContainer = styled.div`
     width: 100%;
     .slick-slide {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .slick-list {
-        padding: 0 10px;
+        display: flex !important;
+        justify-content: center; /* 중앙 정렬 */
+        align-items: center; /* 중앙 정렬 */
+        height: auto; /* 높이 자동 조정 */
     }
 `;
 
@@ -52,14 +52,19 @@ const ImageList = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-    display: inline-block;
+    display: flex !important;
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center; /* 중앙 정렬 */
     padding: 8px;
+    box-sizing: border-box;
+    width: ${(props) => props.imageSize + 16}px; /* 패딩 포함 크기 */
 `;
 
 const Image = styled.img`
-    width: 80px;
-    height: 80px;
+    width: ${(props) => (props.width ? props.width + "px" : "80px")};
+    height: ${(props) => (props.height ? props.height + "px" : "80px")};
     border-radius: 50%;
+    box-sizing: border-box;
     border: ${(props) =>
         props.isSelected ? "2px solid black" : "2px solid transparent"};
     cursor: pointer;

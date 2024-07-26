@@ -4,16 +4,35 @@ import React from "react";
 import styled from "styled-components";
 import { usePathname, useRouter } from "next/navigation";
 import { pageConfig } from "@/pagesConfig";
+import { useFile } from "./Provider";
+
 
 export default function NavBar({ text, hasCompleteBtn }) {
     const router = useRouter();
     const pathName = usePathname();
     const showHeader = pageConfig[pathName]?.showHeader ?? false;
+    const { fileData } = useFile(); // Context 사용
+
+    const downloadImage = () => {
+        if (fileData) {
+            const link = document.createElement("a");
+            link.download = "masked-image.png";
+            link.href = fileData;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
+    const onClickCompleteHandler = () => {
+        downloadImage();
+        router.push("/step/complete");
+    };
 
     return (
         showHeader && (
             <NavBarContainer>
-                <SvgIcon>
+                <SvgIcon onClick={() => router.back()}>
                     <Image
                         src="/svgIcon/arrowLeft.svg"
                         alt="arrow"
@@ -27,7 +46,9 @@ export default function NavBar({ text, hasCompleteBtn }) {
                     {pageConfig[pathName].title}
                 </Title>
                 {pageConfig[pathName]?.hasCompleteBtn ? (
-                    <CompleteButton>완료</CompleteButton>
+                    <CompleteButton onClick={onClickCompleteHandler}>
+                        완료
+                    </CompleteButton>
                 ) : (
                     <NullDiv></NullDiv>
                 )}
@@ -42,6 +63,7 @@ const NavBarContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    background-color: white;
 `;
 
 const Title = styled.div`

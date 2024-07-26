@@ -11,8 +11,10 @@ export default function ImageSlider({ images, setImages }) {
         speed: 500,
         infinite: false,
         slidesToShow: 3,
-        slidesToScroll: 3,
+        slidesToScroll: 1,
         arrows: false,
+        focusOnSelect: false,
+
     };
 
     return (
@@ -27,7 +29,6 @@ export default function ImageSlider({ images, setImages }) {
                         <SlideImage src={src} alt={`Slide ${index}`} />
                     </Group>
                 ))}
-                <NullDiv></NullDiv>
             </Slider>
         </SliderContainer>
     );
@@ -52,7 +53,7 @@ const SliderContainer = styled.div`
 
     .slick-slide .first > div {
         display: flex;
-        justify-content: center;
+        justify-content: start;
         align-items: center;
     }
 `;

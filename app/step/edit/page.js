@@ -9,6 +9,7 @@ import { useFile } from "@/components/layout/Provider";
 import MaskedImage from "@/components/Image/MaskedImage";
 import UserImageSlider from "@/components/Image/UserImageSlider";
 import dynamic from "next/dynamic";
+import MaskedAddImage from "@/components/Image/MaskedAddImage";
 
 const testTargetimages = [
     "/images/circleImage.png",
@@ -22,10 +23,20 @@ const testTargetimages = [
 
 const NoSSRComponent = dynamic(() => import("@/components/Image/MaskedImage"), {
     ssr: false,
-  });
+});
 
 export default function Edit({ loading }) {
     const { filename } = useFile();
+    const fileInputRef = useRef(null);
+    const [sprite, setSprite] = useState(null);
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]; // 수정된 부분
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setSprite(url);
+        }
+    };
+
     const [activeTab, setActiveTab] = useState("changeFace");
     const [selectedMask, setSelectedMask] = useState();
     const masks = [
@@ -48,9 +59,9 @@ export default function Edit({ loading }) {
 
     return (
         <Container>
-            <View>
-                <Top>
-                    {images.length > 0 ? (
+            <Top>
+                {images.length > 0 ? (
+                    activeTab === "changeFace" ? (
                         <MaskedImage
                             src={selectedImage}
                             masks={masks}
@@ -58,39 +69,62 @@ export default function Edit({ loading }) {
                             setSelectedMask={setSelectedMask}
                         />
                     ) : (
-                        <></>
-                    )}
-                </Top>
-                <Bottom>
-                    <BottomTab>
-                        <TabButton
-                            isActive={activeTab === "changeFace"}
-                            onClick={() => setActiveTab("changeFace")}
-                        >
-                            얼굴바꾸기
-                        </TabButton>
-                        <TabButton
-                            isActive={activeTab === "addPerson"}
-                            onClick={() => setActiveTab("addPerson")}
-                        >
-                            사람 추가하기
-                        </TabButton>
-                    </BottomTab>
+                        <MaskedAddImage src={selectedImage} spriteSrc={sprite}></MaskedAddImage>
+                    )
+                ) : (
+                    <></>
+                )}
+            </Top>
+            <BottomTab>
+                <TabButton
+                    isActive={activeTab === "changeFace"}
+                    onClick={() => setActiveTab("changeFace")}
+                >
+                    얼굴바꾸기
+                </TabButton>
+                <TabButton
+                    isActive={activeTab === "addPerson"}
+                    onClick={() => setActiveTab("addPerson")}
+                >
+                    사람 추가하기
+                </TabButton>
+            </BottomTab>
+            <Bottom activeTab={activeTab}>
+                {activeTab === "changeFace" && (
                     <Content>
-                        {activeTab === "changeFace" && (
-                            <UserImageSlider images={testTargetimages} />
-                        )}
-                        {activeTab === "addPerson" && (
-                            <div>사람 추가하기 콘텐츠</div>
-                        )}
+                        <UserImageSlider images={testTargetimages} />
                     </Content>
-                </Bottom>
-            </View>
+                )}
+                {activeTab === "addPerson" && (
+                    <AddContent>
+                        {sprite ? (
+                            <ImagePreview
+                                src={sprite}
+                                height={"200px"}
+                            ></ImagePreview>
+                        ) : (
+                            <>
+                                <AddButtonContainer>
+                                    <AddButton>사람 추가하기</AddButton>
+                                </AddButtonContainer>
+                                <FileInput
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    ref={fileInputRef}
+                                />
+                            </>
+                        )}
+                    </AddContent>
+                )}
+            </Bottom>
         </Container>
     );
 }
 
 const Container = styled.div`
+    display: flex;
+    flex-direction: column;
     height: calc(100vh - 56px); /* 전체 화면 높이를 사용 */
     padding: 0;
     margin: 0;
@@ -101,24 +135,25 @@ const Container = styled.div`
 const View = styled.div`
     display: flex; /* Flexbox 사용 */
     flex-direction: column; /* 세로 방향으로 정렬 */
-    box-sizing: border-box; /* padding 및 border를 포함하여 요소 크기 설정 */
 `;
 
 const Top = styled.div`
-    flex: 5.5; /* 전체 공간의 60% 차지 */
+    flex: 5; /* 전체 공간의 60% 차지 */
     display: flex;
     min-height: 400px;
     justify-content: center;
     align-items: center;
-    background-color: lightblue; /* 시각적 구분을 위해 배경색 설정 */
+    background-color: #f6f6f6; /* 시각적 구분을 위해 배경색 설정 */
 `;
 
 const Bottom = styled.div`
-    min-height: 420px;
-    display: flex;
+    flex: 4;
+    display: ${(props) =>
+        props.activeTab === "changeFace" ? "block" : "flex"};
     flex-direction: column;
-    padding-bottom: 10px;
-    background-color: lightcoral; /* 시각적 구분을 위해 배경색 설정 */
+    justify-content: center;
+    align-items: center;
+    background-color: white;
 `;
 const BottomActions = styled.div`
     display: flex;
@@ -140,11 +175,6 @@ const ActionButton = styled.button`
         background-color: rgba(0, 0, 0, 0.8); /* 검정색 배경과 80% 투명도 */
         cursor: pointer;
     }
-`;
-const FileInput = styled.input`
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
 `;
 
 const InputButton = styled.div`
@@ -172,6 +202,7 @@ const InputButtonContainer = styled.div`
 
 const BottomTab = styled.div`
     display: flex;
+    flex: 1;
 `;
 
 const TabButton = styled.div`
@@ -191,10 +222,36 @@ const TabButton = styled.div`
   `}
 `;
 const Content = styled.div`
-    margin-top: 20px;
-    flex: 1;
-    width: 100%;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* 수정: 중앙이 아닌 상단 정렬 */
+    align-items: center;
+`;
+const AddContent = styled.div`
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const AddButtonContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background-color: white;
+`;
+
+const AddButton = styled.button`
+    width: 175px;
+    height: 52px;
+    line-height: 24px; /* 150% */
+    border-radius: 8px;
+    background-color: black;
+    color: white;
+`;
+
+const FileInput = styled.input`
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
 `;

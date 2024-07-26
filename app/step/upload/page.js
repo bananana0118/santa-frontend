@@ -78,6 +78,7 @@ const Container = styled.div`
     margin: 0;
     box-sizing: border-box; /* padding 및 border를 포함하여 요소 크기 설정 */
     overflow: hidden; /* 스크롤바 숨기기 */
+    background-color: #F6F6F6;
 `;
 
 const View = styled.div`
@@ -92,7 +93,6 @@ const Top = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: lightblue; /* 시각적 구분을 위해 배경색 설정 */
 `;
 
 const Bottom = styled.div`
@@ -101,7 +101,6 @@ const Bottom = styled.div`
     flex-direction: column;
     justify-content: space-between;
     padding: 10px;
-    background-color: lightcoral; /* 시각적 구분을 위해 배경색 설정 */
 `;
 const BottomActions = styled.div`
     display: flex;

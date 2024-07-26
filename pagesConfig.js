@@ -14,4 +14,9 @@ export const pageConfig = {
         title: "사진 편집",
         hasCompleteBtn: true,
     },
+    "/step/complete": {
+        showHeader: true,
+        title: "완료",
+        hasCompleteBtn: false,
+    },
 };
