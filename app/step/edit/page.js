@@ -6,29 +6,35 @@ import styled from "styled-components";
 import ImagePreview from "@/components/Image/ImagePreview";
 import ImageSlider from "@/components/Image/ImageSlider";
 import { useFile } from "@/components/layout/Provider";
+import MaskedImage from "@/components/Image/MaskedImage";
+import UserImageSlider from "@/components/Image/UserImageSlider";
+
+const testTargetimages = [
+    "/images/circleImage.png",
+    "https://via.placeholder.com/80",
+    "https://via.placeholder.com/80",
+    "https://via.placeholder.com/80",
+    "https://via.placeholder.com/80",
+    "https://via.placeholder.com/80",
+    // 더 많은 이미지 경로를 추가하세요
+];
 
 export default function Edit({ loading }) {
     const { filename } = useFile();
-    const fileInputRef = useRef(null);
+    const [activeTab, setActiveTab] = useState("changeFace");
+    const [selectedMask, setSelectedMask] = useState();
+    const masks = [
+        { x: 50, y: 50, width: 100, height: 100 },
+        { x: 150, y: 100, width: 100, height: 100 },
+        // 추가 마스킹 영역
+    ];
     const [images, setImages] = useState([...filename]);
+    const [targetImages, setTargetImages] = useState([]);
+
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [selectedImage, setSelectedImage] = useState(images[0]);
     const handleImageChange = (currentImage) => {
         setSelectedImage(currentImage);
-    };
-    const handleFileChange = (event) => {
-        const files = Array.from(event.target.files);
-        console.log(files);
-        setSelectedFiles(files);
-
-        const urls = files.map((file) => URL.createObjectURL(file));
-        setImages((prev) => [...prev, urls]);
-    };
-
-    const handleButtonClick = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
     };
 
     useEffect(() => {
@@ -40,26 +46,39 @@ export default function Edit({ loading }) {
             <View>
                 <Top>
                     {images.length > 0 ? (
-                        <ImagePreview src={selectedImage} />
+                        <MaskedImage
+                            src={selectedImage}
+                            masks={masks}
+                            selectedMask={selectedMask}
+                            setSelectedMask={setSelectedMask}
+                        />
                     ) : (
-                        <InputButtonContainer>
-                            <InputButton>사진을 업로드해 주세요</InputButton>
-                        </InputButtonContainer>
+                        <></>
                     )}
-                    <FileInput
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                        ref={fileInputRef}
-                    />
                 </Top>
                 <Bottom>
-                    <ImageSlider images={images} setImages={setImages} />
-                    <BottomActions>
-                        <ActionButton>초대링크 복사</ActionButton>
-                        <ActionButton>사진 편집하기</ActionButton>
-                    </BottomActions>
+                    <BottomTab>
+                        <TabButton
+                            isActive={activeTab === "changeFace"}
+                            onClick={() => setActiveTab("changeFace")}
+                        >
+                            얼굴바꾸기
+                        </TabButton>
+                        <TabButton
+                            isActive={activeTab === "addPerson"}
+                            onClick={() => setActiveTab("addPerson")}
+                        >
+                            사람 추가하기
+                        </TabButton>
+                    </BottomTab>
+                    <Content>
+                        {activeTab === "changeFace" && (
+                            <UserImageSlider images={testTargetimages} />
+                        )}
+                        {activeTab === "addPerson" && (
+                            <div>사람 추가하기 콘텐츠</div>
+                        )}
+                    </Content>
                 </Bottom>
             </View>
         </Container>
@@ -93,8 +112,7 @@ const Bottom = styled.div`
     flex: 4; /* 전체 공간의 40% 차지 */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 10px;
+    padding-bottom: 10px;
     background-color: lightcoral; /* 시각적 구분을 위해 배경색 설정 */
 `;
 const BottomActions = styled.div`
@@ -145,4 +163,33 @@ const InputButtonContainer = styled.div`
     padding: 16px;
     border-radius: 8px;
     background-color: #fff;
+`;
+
+const BottomTab = styled.div`
+    display: flex;
+`;
+
+const TabButton = styled.div`
+    flex: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    cursor: pointer;
+    ${(props) =>
+        props.isActive &&
+        `
+    border-bottom: 2px solid black;
+    font-weight: bold;
+  `}
+`;
+const Content = styled.div`
+    margin-top: 20px;
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 수정: 중앙이 아닌 상단 정렬 */
 `;

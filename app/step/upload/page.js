@@ -22,7 +22,7 @@ export default function Step({ loading }) {
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files);
         const urls = files.map((file) => URL.createObjectURL(file));
-
+        
         setImages((prev) => [...prev, ...urls]);
     };
 

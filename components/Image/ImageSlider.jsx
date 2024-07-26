@@ -14,7 +14,7 @@ export default function ImageSlider({ images, setImages }) {
         slidesToScroll: 3,
         arrows: false,
     };
-console.log("images" , images)
+
     return (
         <SliderContainer>
             <Slider {...settings}>
