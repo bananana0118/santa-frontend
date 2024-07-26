@@ -5,15 +5,12 @@ import LoadingSpinner from "@/components/loading/LoadingSpinner";
 import styled from "styled-components";
 import ImagePreview from "@/components/Image/ImagePreview";
 import ImageSlider from "@/components/Image/ImageSlider";
-import { useRouter } from "next/navigation";
 import { useFile } from "@/components/layout/Provider";
 
-export default function Step({ loading }) {
+export default function Edit({ loading }) {
+    const { filename } = useFile();
     const fileInputRef = useRef(null);
-    const router = useRouter();
-    
-    const { setFilename } = useFile();
-    const [images, setImages] = useState([]);
+    const [images, setImages] = useState([...filename]);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [selectedImage, setSelectedImage] = useState(images[0]);
     const handleImageChange = (currentImage) => {
@@ -21,9 +18,11 @@ export default function Step({ loading }) {
     };
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files);
-        const urls = files.map((file) => URL.createObjectURL(file));
+        console.log(files);
+        setSelectedFiles(files);
 
-        setImages((prev) => [...prev, ...urls]);
+        const urls = files.map((file) => URL.createObjectURL(file));
+        setImages((prev) => [...prev, urls]);
     };
 
     const handleButtonClick = () => {
@@ -35,11 +34,6 @@ export default function Step({ loading }) {
     useEffect(() => {
         setSelectedImage(images[0]);
     }, [images]);
-
-    const onClickPictureEdit = () => {
-        setFilename([...images]);
-        router.push("/step/edit");
-    };
 
     return (
         <Container>
@@ -64,7 +58,7 @@ export default function Step({ loading }) {
                     <ImageSlider images={images} setImages={setImages} />
                     <BottomActions>
                         <ActionButton>초대링크 복사</ActionButton>
-                        <ActionButton onClick={onClickPictureEdit}>사진 편집하기</ActionButton>
+                        <ActionButton>사진 편집하기</ActionButton>
                     </BottomActions>
                 </Bottom>
             </View>

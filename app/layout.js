@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import { Suspense } from "react";
 import LoadingSpinner from "@/components/loading/LoadingSpinner";
 import NavBar from "@/components/layout/NavBar";
+import Provider from "@/components/layout/Provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,8 +18,10 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body>
-                <NavBar />
-                {children}
+                <Provider>
+                    <NavBar />
+                    {children}
+                </Provider>
             </body>
         </html>
     );
