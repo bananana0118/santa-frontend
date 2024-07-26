@@ -4,7 +4,7 @@ export const pageConfig = {
         title: "홈페이지",
         hasCompleteBtn: false,
     },
-    "/step/upload": {
+    "/upload": {
         showHeader: true,
         title: "사진 업로드",
         hasCompleteBtn: false,

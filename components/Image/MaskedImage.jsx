@@ -11,15 +11,28 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import useImage from "use-image";
 import styled from "styled-components";
 
-const MaskedImage = ({ src, masks, setSelectedMask, selectedMask }) => {
+const transformDataToMasks = (data) => {
+    if (!data) return []; // data가 없을 경우 빈 배열 반환
+    return Object.keys(data).map((key) => ({
+        label: key,
+        x: data[key].x1,
+        y: data[key].y1,
+        width: data[key].width,
+        height: data[key].height,
+    }));
+};
+
+const MaskedImage = ({ src, coords, setSelectedMask, selectedMask }) => {
     const [image] = useImage(src);
     const imageRef = useRef(null);
     const stageRef = useRef(null);
     const imageLayerRef = useRef(null);
     const groupRef = useRef(null);
-
-    const onClickMaskHandler = (index) => {
-        setSelectedMask(index);
+    const masks = transformDataToMasks(coords);
+    const onClickMaskHandler = (e) => {
+        const { name } = e.currentTarget.attrs;
+        console.log(name);
+        setSelectedMask(name);
     };
 
     const handleWheel = (e) => {
@@ -47,7 +60,6 @@ const MaskedImage = ({ src, masks, setSelectedMask, selectedMask }) => {
         stage.batchDraw();
     };
 
-
     return (
         <ZoomContainer>
             <CanvasContainer>
@@ -66,17 +78,20 @@ const MaskedImage = ({ src, masks, setSelectedMask, selectedMask }) => {
                             />
                             {masks.map((mask, index) => (
                                 <Circle
+                                    name={mask.label}
                                     key={index}
                                     x={mask.x}
                                     y={mask.y}
                                     width={mask.width}
                                     height={mask.height}
                                     fill={
-                                        selectedMask === index
-                                            ? "rgba(16, 255, 36, 0.5)"
-                                            : "rgba(0, 0, 0, 0.5)"
+                                        selectedMask == mask.label
+                                            ? "rgba(243, 247, 20, 0.577)"
+                                            : "rgba(0, 0, 0, 0.1)"
                                     } // 마스킹 색상과 투명도
-                                    onClick={() => onClickMaskHandler(index)}
+                                    stroke="#f3ff0b" // 테두리 색상
+                                    strokeWidth={2} // 테두리 두께
+                                    onClick={onClickMaskHandler}
                                 />
                             ))}
                         </Group>

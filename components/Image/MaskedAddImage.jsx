@@ -6,22 +6,27 @@ import {
     Rect,
     Circle,
     Group,
+    Transformer,
 } from "react-konva";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import useImage from "use-image";
 import styled from "styled-components";
 import { useFile } from "../layout/Provider";
+import { Rnd } from "react-rnd";
 
 const MaskedAddImage = ({ src, masks, spriteSrc }) => {
     const [image] = useImage(src);
-    const imageRef = useRef(null);
-    const stageRef = useRef(null);
-    const [imageSize, setImageSize] = useState({ width: 400, height: 400 }); // 기본값 설정
-
-    const imageLayerRef = useRef(null);
-    const groupRef = useRef(null);
     const [spriteImage] = useImage(spriteSrc); // Load the sprite image
-    const { setFileData } = useFile(); // Context 사용
+    const [imageSize, setImageSize] = useState({ width: 400, height: 400 }); // 기본값 설정
+    const [spriteSize, setSpriteSize] = useState({ width: 100, height: 100 }); // 스프라이트 이미지의 초기 크기
+    const [spritePosition, setSpritePosition] = useState({ x: 100, y: 100 });
+    const stageRef = useRef(null);
+    const groupRef = useRef(null);
+    const spriteRef = useRef(null);
+    const imageRef = useRef(null);
+    const transformerRef = useRef(null);
+
+    const { setFileData, setAddMaskInfo, addMaskInfo } = useFile(); // Context 사용
 
     const handleWheel = (e) => {
         e.evt.preventDefault();
@@ -61,6 +66,40 @@ const MaskedAddImage = ({ src, masks, spriteSrc }) => {
         }
     }, [image]);
 
+    const handleTransformEnd = () => {
+        if (spriteRef.current) {
+            const node = spriteRef.current;
+            const { x, y, width, height } = node.attrs;
+            setSpritePosition({ x, y });
+            setSpriteSize({ width, height });
+    
+            setAddMaskInfo({
+                x1: Math.round(x),
+                x2: Math.round(x + width),
+                y1: Math.round(y),
+                y2: Math.round(y + height),
+            });
+            console.log(addMaskInfo);
+        }
+    };
+
+    const handleSelect = (e) => {
+        if (e.target === spriteRef.current) {
+            transformerRef.current.nodes([e.target]);
+            transformerRef.current.getLayer().batchDraw();
+        } else {
+            transformerRef.current.nodes([]);
+            transformerRef.current.getLayer().batchDraw();
+        }
+    };
+
+    useEffect(() => {
+        if (transformerRef.current) {
+            transformerRef.current.nodes([spriteRef.current]);
+            transformerRef.current.getLayer().batchDraw();
+        }
+    }, [spriteImage]);
+
     return (
         <ZoomContainer>
             <CanvasContainer>
@@ -78,14 +117,33 @@ const MaskedAddImage = ({ src, masks, spriteSrc }) => {
                                 ref={imageRef}
                             />
                             {spriteImage && (
-                                <KonvaImage
-                                    image={spriteImage} // 스프라이트 이미지 추가
-                                    x={100} // 필요한 위치로 조정
-                                    y={100} // 필요한 위치로 조정
-                                    width={50} // 필요한 크기로 조정
-                                    height={50} // 필요한 크기로 조정
-                                    draggable
-                                />
+                                <>
+                                    <KonvaImage
+                                        image={spriteImage} // 스프라이트 이미지 추가
+                                        x={spritePosition.x}
+                                        y={spritePosition.y}
+                                        width={spriteSize.width}
+                                        height={spriteSize.height}
+                                        onClick={handleSelect}
+                                        ref={spriteRef}
+                                        onTransformEnd={handleTransformEnd}
+                                        onDragEnd={handleTransformEnd}
+                                        draggable
+                                    />
+                                    <Transformer
+                                        ref={transformerRef}
+                                        rotateEnabled={false}
+                                        boundBoxFunc={(oldBox, newBox) => {
+                                            if (
+                                                newBox.width < 20 ||
+                                                newBox.height < 20
+                                            ) {
+                                                return oldBox;
+                                            }
+                                            return newBox;
+                                        }}
+                                    />
+                                </>
                             )}
                         </Group>
                     </Layer>

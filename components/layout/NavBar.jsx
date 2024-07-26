@@ -2,17 +2,22 @@
 import Image from "next/image";
 import React from "react";
 import styled from "styled-components";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { pageConfig } from "@/pagesConfig";
 import { useFile } from "./Provider";
-
+import extractPath from "@/utils/extractPath";
 
 export default function NavBar({ text, hasCompleteBtn }) {
     const router = useRouter();
-    const pathName = usePathname();
+    const params = useParams();
+    const url = usePathname();
+
+    const pathName = extractPath(url, "/step");
     const showHeader = pageConfig[pathName]?.showHeader ?? false;
     const { fileData } = useFile(); // Context 사용
+    const { id } = params;
 
+    console.log(id);
     const downloadImage = () => {
         if (fileData) {
             const link = document.createElement("a");

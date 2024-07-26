@@ -10,6 +10,8 @@ import MaskedImage from "@/components/Image/MaskedImage";
 import UserImageSlider from "@/components/Image/UserImageSlider";
 import dynamic from "next/dynamic";
 import MaskedAddImage from "@/components/Image/MaskedAddImage";
+import { api } from "@/apis/apis";
+import { useParams } from "next/navigation";
 
 const testTargetimages = [
     "/images/circleImage.png",
@@ -29,6 +31,10 @@ export default function Edit({ loading }) {
     const { filename } = useFile();
     const fileInputRef = useRef(null);
     const [sprite, setSprite] = useState(null);
+    const params = useParams();
+    const { id } = params;
+    const [coords, setCoords] = useState(null);
+
     const handleFileChange = (event) => {
         const file = event.target.files[0]; // 수정된 부분
         if (file) {
@@ -57,6 +63,19 @@ export default function Edit({ loading }) {
         setSelectedImage(images[0]);
     }, [images]);
 
+    useEffect(() => {
+        const fetchCoords = async () => {
+            try {
+                const response = await api.post("/get_coord", { groupId:Number(id) });
+                setCoords(response.data);
+            } catch (error) {
+                console.error("Error fetching coordinates:", error);
+            }
+        };
+
+        fetchCoords();
+    }, [id]);
+
     return (
         <Container>
             <Top>
@@ -64,12 +83,15 @@ export default function Edit({ loading }) {
                     activeTab === "changeFace" ? (
                         <MaskedImage
                             src={selectedImage}
-                            masks={masks}
+                            coords={coords}
                             selectedMask={selectedMask}
                             setSelectedMask={setSelectedMask}
                         />
                     ) : (
-                        <MaskedAddImage src={selectedImage} spriteSrc={sprite}></MaskedAddImage>
+                        <MaskedAddImage
+                            src={selectedImage}
+                            spriteSrc={sprite}
+                        ></MaskedAddImage>
                     )
                 ) : (
                     <></>

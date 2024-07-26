@@ -7,11 +7,13 @@ import ImagePreview from "@/components/Image/ImagePreview";
 import ImageSlider from "@/components/Image/ImageSlider";
 import { useRouter } from "next/navigation";
 import { useFile } from "@/components/layout/Provider";
+import { api } from "@/apis/apis";
+
 
 export default function Step({ loading }) {
     const fileInputRef = useRef(null);
     const router = useRouter();
-    
+
     const { setFilename } = useFile();
     const [images, setImages] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -22,8 +24,9 @@ export default function Step({ loading }) {
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files);
         const urls = files.map((file) => URL.createObjectURL(file));
-        
+
         setImages((prev) => [...prev, ...urls]);
+        setSelectedFiles((prev) => [...prev, ...files]);
     };
 
     const handleButtonClick = () => {
@@ -36,9 +39,26 @@ export default function Step({ loading }) {
         setSelectedImage(images[0]);
     }, [images]);
 
-    const onClickPictureEdit = () => {
-        setFilename([...images]);
-        router.push("/step/edit");
+    const onClickPictureEdit = async () => {
+        const formData = new FormData();
+        selectedFiles.forEach((file) => {
+            formData.append("files", file);
+        });
+
+        try {
+            const response = await api.post("/init_group", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            console.log(response.data);
+            const { groupId } = response.data;
+
+            setFilename([...images]);
+            router.push(`/${groupId}/step/edit`);
+        } catch (error) {
+            console.error("There was an error uploading the files!", error);
+        }
     };
 
     return (
@@ -64,7 +84,9 @@ export default function Step({ loading }) {
                     <ImageSlider images={images} setImages={setImages} />
                     <BottomActions>
                         <ActionButton>초대링크 복사</ActionButton>
-                        <ActionButton onClick={onClickPictureEdit}>사진 편집하기</ActionButton>
+                        <ActionButton onClick={onClickPictureEdit}>
+                            사진 편집하기
+                        </ActionButton>
                     </BottomActions>
                 </Bottom>
             </View>
@@ -78,7 +100,7 @@ const Container = styled.div`
     margin: 0;
     box-sizing: border-box; /* padding 및 border를 포함하여 요소 크기 설정 */
     overflow: hidden; /* 스크롤바 숨기기 */
-    background-color: #F6F6F6;
+    background-color: #f6f6f6;
 `;
 
 const View = styled.div`
