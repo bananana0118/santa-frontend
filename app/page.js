@@ -58,7 +58,7 @@ const Row = styled.div`
 `;
 const TextBox = styled.div`
     position: absolute;
-    top: 30%; /* 화면 상단에서 30% 떨어진 위치 */
+    top: 20%; /* 화면 상단에서 30% 떨어진 위치 */
     display: flex;
     flex-direction: column;
     justify-content: left;
@@ -76,5 +76,5 @@ const ViewBox = styled.div`
 const TextButtonBox = styled.div`
     position: absolute;
     flex-direction: column;
-    top: 90%; /* 화면 상단에서 30% 떨어진 위치 */
+    top: 80%; /* 화면 상단에서 30% 떨어진 위치 */
 `;

@@ -100,21 +100,21 @@ const Container = styled.div`
 
 const View = styled.div`
     display: flex; /* Flexbox 사용 */
-    height: 100%;
     flex-direction: column; /* 세로 방향으로 정렬 */
     box-sizing: border-box; /* padding 및 border를 포함하여 요소 크기 설정 */
 `;
 
 const Top = styled.div`
-    flex: 6; /* 전체 공간의 60% 차지 */
+    flex: 5.5; /* 전체 공간의 60% 차지 */
     display: flex;
+    min-height: 400px;
     justify-content: center;
     align-items: center;
     background-color: lightblue; /* 시각적 구분을 위해 배경색 설정 */
 `;
 
 const Bottom = styled.div`
-    flex: 4; /* 전체 공간의 40% 차지 */
+    min-height: 420px;
     display: flex;
     flex-direction: column;
     padding-bottom: 10px;
