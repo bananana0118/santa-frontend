@@ -47,34 +47,22 @@ export default function Home() {
     );
 }
 
-const Row = styled.div`
-    display: flex;
-    align-items: center;
-    color: #fff;
-    font-size: 48px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 60px; /* 125% */
-`;
 const TextBox = styled.div`
-    position: absolute;
-    top: 20%; /* 화면 상단에서 30% 떨어진 위치 */
     display: flex;
+    margin-top: 100px;
     flex-direction: column;
     justify-content: left;
 `;
 
 const ViewBox = styled.div`
+    padding: 10%;
     display: flex;
+    gap: 30%;
     flex-direction: column;
-    justify-content: space-between;
     margin-bottom: 40px;
     align-items: center;
-
 `;
 
 const TextButtonBox = styled.div`
-    position: absolute;
     flex-direction: column;
-    top: 80%; /* 화면 상단에서 30% 떨어진 위치 */
 `;
