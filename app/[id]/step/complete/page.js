@@ -24,7 +24,7 @@ const DummyImages = [
 export default function Complete({ loading }) {
     const router = useRouter();
 
-    const { setFilename, filename } = useFile();
+    const { setFilename, filename, mode } = useFile();
     const [images, setImages] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [imageSrc, setImageSrc] = useState(null);
@@ -88,7 +88,6 @@ export default function Complete({ loading }) {
         fetchModifiedImage();
     }, [id]);
 
-    console.log(progressData);
     const onClickShare = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -101,15 +100,30 @@ export default function Complete({ loading }) {
                         <ImagePreview src={imageSrc} />
                     </Top>
                     <Bottom>
-                        <TextTitle>몇명이 아직 편집 중이에요</TextTitle>
-                        <SlidetWithLabel
-                            label={"완료된 사람"}
-                            hids={completeImages}
-                        ></SlidetWithLabel>
-                        <SlidetWithLabel
-                            label={"진행중인 사람"}
-                            hids={ingImages}
-                        ></SlidetWithLabel>
+                        {mode == "addPeople" ? (
+                            <TextTitle>이미지 합성이 성공했어요!</TextTitle>
+                        ) : (
+                            <>
+                                <TextTitle>
+                                    {ingImages.length <= 0
+                                        ? "모든 사람이 편집이 완료되었어요! "
+                                        : "몇명이 아직 편집 중이에요"}
+                                </TextTitle>
+                                <SlidetWithLabel
+                                    label={"완료된 사람"}
+                                    hids={completeImages}
+                                    isCompleted={true}
+                                ></SlidetWithLabel>
+                                {ingImages.length > 0 ? (
+                                    <SlidetWithLabel
+                                        label={"진행중인 사람"}
+                                        hids={ingImages}
+                                    ></SlidetWithLabel>
+                                ) : (
+                                    <div></div>
+                                )}
+                            </>
+                        )}
                     </Bottom>
                 </View>
                 <BottomActions>

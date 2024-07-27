@@ -1,11 +1,15 @@
 "use client";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
 export default function KakaoShare() {
+    const params = useParams();
+    const { id } = params;
     const onClickKakaoHandler = () => {
         //kakaoSdk부른후 window.kakao로 접근
+        const myId = Number(id);
         if (window.Kakao) {
             const kakao = window.Kakao;
             //중복 initialization 방지
@@ -20,7 +24,10 @@ export default function KakaoShare() {
                     title: "사진을 공유했어요!",
                     description: "사진을 확인해주세요",
                     imageUrl: "",
-                    link: { mobileWebUrl: "", webUrl: "" },
+                    link: {
+                        mobileWebUrl: `https://santa-frontend-xi.vercel.app/${myId}/step/edit`,
+                        webUrl: `https://santa-frontend-xi.vercel.app/${myId}/step/edit`,
+                    },
                 },
             });
         }

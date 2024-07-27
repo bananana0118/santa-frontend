@@ -20,13 +20,12 @@ const MaskedAddImage = ({ src, masks, spriteSrc }) => {
     const [imageSize, setImageSize] = useState({ width: 400, height: 400 }); // 기본값 설정
     const [spriteSize, setSpriteSize] = useState({ width: 100, height: 100 }); // 스프라이트 이미지의 초기 크기
     const [spritePosition, setSpritePosition] = useState({ x: 100, y: 100 });
+    const { setFileData, setAddMaskInfo, addMaskInfo } = useFile(); // Context 사용
     const stageRef = useRef(null);
     const groupRef = useRef(null);
     const spriteRef = useRef(null);
     const imageRef = useRef(null);
     const transformerRef = useRef(null);
-
-    const { setFileData, setAddMaskInfo, addMaskInfo } = useFile(); // Context 사용
 
     const handleWheel = (e) => {
         e.evt.preventDefault();
@@ -72,7 +71,7 @@ const MaskedAddImage = ({ src, masks, spriteSrc }) => {
             const { x, y, width, height } = node.attrs;
             setSpritePosition({ x, y });
             setSpriteSize({ width, height });
-    
+
             setAddMaskInfo({
                 x1: Math.round(x),
                 x2: Math.round(x + width),

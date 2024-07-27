@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { api } from "@/apis/apis";
 import { useParams } from "next/navigation";
 
-export default function SlidetWithLabel({ label, hids }) {
+export default function SlidetWithLabel({ label, hids, isCompleted }) {
     const [images, setImages] = useState();
     const params = useParams();
     const { id } = params;
@@ -32,7 +32,7 @@ export default function SlidetWithLabel({ label, hids }) {
         const fetchTargetImages = async () => {
             const imagePromises = hids.map(async (humanId) => {
                 const strippedHumanId = humanId.substring(1);
-                const imageId = `i${0}`
+                const imageId = `i${0}`;
                 const url = await fetchCroppedImage({
                     groupId: Number(id),
                     imageId: imageId,
@@ -55,6 +55,7 @@ export default function SlidetWithLabel({ label, hids }) {
                 imageSize={48}
                 viewCount={5}
                 noClick={true}
+                isCompleted={isCompleted}
             ></UserImageSlider>
         </div>
     );

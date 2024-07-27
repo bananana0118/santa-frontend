@@ -15,7 +15,7 @@ export default function NavBar({ text, hasCompleteBtn }) {
 
     const pathName = extractPath(url, "/step");
     const showHeader = pageConfig[pathName]?.showHeader ?? false;
-    const { fileData, mode, selectedFaceInfo } = useFile(); // Context 사용
+    const { fileData, mode, selectedFaceInfo, addMaskInfo } = useFile(); // Context 사용
     const { id } = params;
 
     const swapFaces = async () => {
@@ -32,25 +32,42 @@ export default function NavBar({ text, hasCompleteBtn }) {
         }
     };
 
-    const downloadImage = () => {
-        if (fileData) {
-            const link = document.createElement("a");
-            link.download = "masked-image.png";
-            link.href = fileData;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append("groupId", Number(id));
+        formData.append("coordinate", JSON.stringify(addMaskInfo));
+
+        try {
+            const response = await api.post("/add_people", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                responseType: "blob", // 이미지 파일을 받기 위해 responseType을 blob으로 설정
+            });
+
+            // Blob 데이터를 처리하는 로직 추가
+            const blob = new Blob([response.data], {
+                type: response.headers["content-type"],
+            });
+            const url = window.URL.createObjectURL(blob);
+            console.log(url);
+        } catch (error) {
+            console.error("Error adding people and fetching the image:", error);
         }
     };
 
-    const onClickCompleteHandler = () => {
-        console.log(mode)
-        
+    const onClickCompleteHandler = (e) => {
+        console.log(mode);
+
         if (mode == "changeFace") {
-            swapFaces()
+            swapFaces();
             router.push(`/${id}/step/complete`);
         }
         if (mode == "addPerson") {
+            handleSubmit(e);
+            router.push(`/${id}/step/complete`);
         }
     };
 

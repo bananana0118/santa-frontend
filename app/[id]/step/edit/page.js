@@ -59,7 +59,6 @@ export default function Edit({ loading }) {
     const params = useParams();
     const { id } = params;
     const [coords, setCoords] = useState(null);
-
     const [activeTab, setActiveTab] = useState("changeFace");
     const [selectedMask, setSelectedMask] = useState();
 
@@ -69,11 +68,37 @@ export default function Edit({ loading }) {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [selectedImage, setSelectedImage] = useState(images[0]);
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const file = event.target.files[0]; // 수정된 부분
+        const gid = Number(id);
+
         if (file) {
-            const url = URL.createObjectURL(file);
-            setSprite(url);
+            const formData = new FormData();
+            formData.append("file", file);
+            try {
+                // 파일 업로드 API 호출
+                const uploadResponse = await api.post(
+                    `/remove_background?gid=${gid}`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                        responseType: "blob", // 이미지 파일을 받기 위해 responseType을 blob으로 설정
+                    }
+                );
+
+                // Blob 데이터를 처리하는 로직 추가
+                const blob = new Blob([uploadResponse.data], {
+                    type: uploadResponse.headers["content-type"],
+                });
+                const url = window.URL.createObjectURL(blob);
+
+                // 업로드된 파일 URL을 setSprite에 설정
+                setSprite(url);
+            } catch (error) {
+                console.error("Error uploading and fetching the file:", error);
+            }
         }
     };
 
@@ -86,6 +111,24 @@ export default function Edit({ loading }) {
     }, [images]);
 
     useEffect(() => {
+        const fetchModifiedImage = async () => {
+            const groupId = Number(id);
+            try {
+                const response = await api.post(
+                    "/get_modified_img",
+                    { groupId: groupId },
+                    { responseType: "blob" } // 이미지를 바이너리 데이터로 수신
+                );
+
+                const imageBlob = new Blob([response.data], {
+                    type: "image/png",
+                });
+                const imageUrl = URL.createObjectURL(imageBlob);
+                setImageSrc(imageUrl);
+            } catch (error) {
+                console.error("Error fetching modified image:", error);
+            }
+        };
         const fetchCoords = async () => {
             try {
                 const response = await api.post("/get_coord", {
@@ -96,7 +139,7 @@ export default function Edit({ loading }) {
                 console.error("Error fetching coordinates:", error);
             }
         };
-
+        fetchModifiedImage();
         fetchCoords();
     }, [id]);
 
@@ -115,8 +158,7 @@ export default function Edit({ loading }) {
                 });
                 const imageObjects = await Promise.all(imagePromises);
                 setTargetImages(imageObjects.filter((obj) => obj.url !== null));
-        console.log(targetImages)
-            
+                console.log(targetImages);
             }
         };
 

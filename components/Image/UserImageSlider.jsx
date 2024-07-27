@@ -8,6 +8,7 @@ export default function UserImageSlider({
     imageSize,
     viewCount,
     noClick,
+    isCompleted,
 }) {
     const settings = {
         infinite: false,
@@ -42,9 +43,8 @@ export default function UserImageSlider({
                             }
                             isSelected={selectedImage === image.imageId}
                         />
-                        {selectedImage === image.imageId && (
-                            <CheckMark>✔</CheckMark>
-                        )}
+                        {selectedImage === image.imageId ||
+                            (isCompleted && <CheckMark>✔</CheckMark>)}
                     </ImageWrapper>
                 ))}
             </Slider>
