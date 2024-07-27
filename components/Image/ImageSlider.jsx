@@ -8,7 +8,7 @@ import UploadButton from "../button/UploadButton";
 import XButton from "../button/XButton";
 import XButtonOnImage from "../button/XButtonOnImage";
 
-export default function ImageSlider({ images, setImages }) {
+export default function ImageSlider({ images, setImages, setSelectedFiles }) {
     const settings = {
         speed: 500,
         infinite: false,
@@ -20,6 +20,9 @@ export default function ImageSlider({ images, setImages }) {
 
     const onClickHandler = (index) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+        setSelectedFiles((prevFiles) =>
+            prevFiles.filter((_, i) => i !== index)
+        );
     };
 
     return (

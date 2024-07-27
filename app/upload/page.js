@@ -37,6 +37,8 @@ export default function Step({ loading }) {
 
     useEffect(() => {
         setSelectedImage(images[0]);
+        console.log(selectedFiles)
+
     }, [images]);
 
     const onClickPictureEdit = async () => {
@@ -81,7 +83,7 @@ export default function Step({ loading }) {
                     />
                 </Top>
                 <Bottom>
-                    <ImageSlider images={images} setImages={setImages} />
+                    <ImageSlider images={images} setImages={setImages} setSelectedFiles={setSelectedFiles} />
                     <BottomActions>
                         <ActionButton>초대링크 복사</ActionButton>
                         <ActionButton onClick={onClickPictureEdit}>

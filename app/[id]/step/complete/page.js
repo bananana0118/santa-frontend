@@ -5,11 +5,12 @@ import LoadingSpinner from "@/components/loading/LoadingSpinner";
 import styled from "styled-components";
 import ImagePreview from "@/components/Image/ImagePreview";
 import ImageSlider from "@/components/Image/ImageSlider";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useFile } from "@/components/layout/Provider";
 import SlidetWithLabel from "@/components/Image/SlidetWithLabel";
 import XButton from "@/components/button/XButton";
 import KakaoShare from "@/components/button/KakaoShare";
+import { api } from "@/apis/apis";
 const DummyImages = [
     "/images/circleImage.png",
     "https://via.placeholder.com/80",
@@ -26,7 +27,68 @@ export default function Complete({ loading }) {
     const { setFilename, filename } = useFile();
     const [images, setImages] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [imageSrc, setImageSrc] = useState(null);
+    const params = useParams();
+    const { id } = params;
 
+    const [completeImages, setCompleteImages] = useState([]);
+    const [ingImages, setIngImages] = useState([]);
+    const [progressData, setProgressData] = useState(null);
+
+    useEffect(() => {
+        const fetchModifiedImage = async () => {
+            const groupId = Number(id);
+            try {
+                const response = await api.post(
+                    "/get_modified_img",
+                    { groupId: groupId },
+                    { responseType: "blob" } // 이미지를 바이너리 데이터로 수신
+                );
+
+                const imageBlob = new Blob([response.data], {
+                    type: "image/png",
+                });
+                const imageUrl = URL.createObjectURL(imageBlob);
+                setImageSrc(imageUrl);
+            } catch (error) {
+                console.error("Error fetching modified image:", error);
+            }
+        };
+
+        const fetchProgressData = async () => {
+            const groupId = Number(id);
+            try {
+                const response = await api.post("/get_progress", {
+                    groupId,
+                });
+                if (response.data.status === "success") {
+                    const progressData = response.data.progress;
+                    const completed = [];
+                    const inProgress = [];
+
+                    Object.keys(progressData).forEach((key) => {
+                        if (progressData[key]) {
+                            completed.push(key);
+                        } else {
+                            inProgress.push(key);
+                        }
+                    });
+
+                    setCompleteImages(completed);
+                    setIngImages(inProgress);
+                } else {
+                    console.error("Failed to fetch progress data");
+                }
+            } catch (error) {
+                console.error("Error fetching progress data:", error);
+            }
+        };
+
+        fetchProgressData();
+        fetchModifiedImage();
+    }, [id]);
+
+    console.log(progressData);
     const onClickShare = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -36,17 +98,17 @@ export default function Complete({ loading }) {
             <Container>
                 <View>
                     <Top>
-                        <ImagePreview src={filename} />
+                        <ImagePreview src={imageSrc} />
                     </Top>
                     <Bottom>
                         <TextTitle>몇명이 아직 편집 중이에요</TextTitle>
                         <SlidetWithLabel
                             label={"완료된 사람"}
-                            images={DummyImages}
+                            hids={completeImages}
                         ></SlidetWithLabel>
                         <SlidetWithLabel
                             label={"진행중인 사람"}
-                            images={DummyImages}
+                            hids={ingImages}
                         ></SlidetWithLabel>
                     </Bottom>
                 </View>

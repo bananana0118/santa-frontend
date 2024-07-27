@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import Slider from "react-slick";
 import styled from "styled-components";
+import { useFile } from "../layout/Provider";
 
-export default function UserImageSlider({ images, imageSize, viewCount }) {
+export default function UserImageSlider({
+    images,
+    imageSize,
+    viewCount,
+    noClick,
+}) {
     const settings = {
         infinite: false,
         slidesToShow: viewCount ? viewCount : 4,
@@ -11,24 +17,34 @@ export default function UserImageSlider({ images, imageSize, viewCount }) {
         draggable: true,
         focusOnSelect: false,
     };
+    const { setSelectedFaceInfo } = useFile();
     const [selectedImage, setSelectedImage] = useState(null);
-    const handleImageClick = (index) => {
-        setSelectedImage(index);
+    const handleImageClick = (imageId) => {
+        setSelectedImage(imageId);
+        setSelectedFaceInfo((prev) => ({ ...prev, imageId: imageId }));
     };
 
     return (
         <SliderContainer>
             <Slider {...settings}>
-                {images.map((src, index) => (
+                {images?.map((image, index) => (
                     <ImageWrapper key={index}>
                         <Image
-                            src={src}
+                            name={image.imageId}
+                            src={image.url}
                             width={imageSize}
                             height={imageSize}
                             alt={`Image ${index}`}
-                            onClick={() => handleImageClick(index)}
-                            isSelected={selectedImage === index}
+                            onClick={
+                                noClick
+                                    ? () => {}
+                                    : () => handleImageClick(image.imageId)
+                            }
+                            isSelected={selectedImage === image.imageId}
                         />
+                        {selectedImage === image.imageId && (
+                            <CheckMark>✔</CheckMark>
+                        )}
                     </ImageWrapper>
                 ))}
             </Slider>
@@ -52,6 +68,7 @@ const ImageList = styled.div`
 `;
 
 const ImageWrapper = styled.div`
+    position: relative;
     display: flex !important;
     justify-content: center; /* 중앙 정렬 */
     align-items: center; /* 중앙 정렬 */
@@ -70,4 +87,19 @@ const Image = styled.img`
     cursor: pointer;
     object-fit: cover;
     transition: border 0.3s;
+`;
+
+const CheckMark = styled.div`
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
 `;

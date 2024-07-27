@@ -17,35 +17,43 @@ import JSZip from "jszip";
 const NoSSRComponent = dynamic(() => import("@/components/Image/MaskedImage"), {
     ssr: false,
 });
-const fetchCroppedImages = async ({ groupId, humanId, setImages }) => {
+const fetchCroppedImage = async ({ groupId, humanId, imageId }) => {
     try {
         const response = await api.post(
-            "/get_cropped_imgs",
+            "/get_cropped_img",
             {
-                groupId: groupId,
-                humanId: humanId,
+                groupId,
+                humanId,
+                imageId,
             },
             {
-                responseType: "blob", // Response type을 blob으로 설정하여 바이너리 데이터를 수신합니다.
+                responseType: "blob",
             }
         );
-
-        const zip = await JSZip.loadAsync(response.data);
-        const images = [];
-
-        for (const filename of Object.keys(zip.files)) {
-            const file = await zip.file(filename).async("blob");
-            images.push(URL.createObjectURL(file));
-        }
-
-        setImages(images);
+        return URL.createObjectURL(response.data);
     } catch (error) {
-        console.error("Error fetching cropped images:", error);
+        console.error(`Error fetching cropped image ${imageId}:`, error);
+        return null;
+    }
+};
+const getImageIds = async ({ imageId, groupId }) => {
+    try {
+        const response = await api.post(`/get_imageIds`, {
+            groupId: groupId,
+        });
+
+        const { imageIds } = response.data;
+
+        return imageIds;
+    } catch (error) {
+        console.error(`Error fetching image ${imageId}:`, error);
+        return null;
     }
 };
 
 export default function Edit({ loading }) {
-    const { filename, selectedMaskId } = useFile();
+    const { filename, selectedMaskId, setMode, setSelectedFaceInfo } =
+        useFile();
     const fileInputRef = useRef(null);
     const [sprite, setSprite] = useState(null);
     const params = useParams();
@@ -54,11 +62,7 @@ export default function Edit({ loading }) {
 
     const [activeTab, setActiveTab] = useState("changeFace");
     const [selectedMask, setSelectedMask] = useState();
-    const masks = [
-        { x: 50, y: 50, width: 100, height: 100 },
-        { x: 150, y: 100, width: 100, height: 100 },
-        // 추가 마스킹 영역
-    ];
+
     const [images, setImages] = useState([...filename]);
     const [targetImages, setTargetImages] = useState([]);
 
@@ -100,16 +104,39 @@ export default function Edit({ loading }) {
         //async함수로 코드 만들어서 setTargetImages 에 값저장한다.
         const fetchTargetImage = async () => {
             if (selectedMaskId) {
-                await fetchCroppedImages({
-                    groupId: Number(id),
-                    humanId: selectedMaskId,
-                    setImages: setTargetImages,
+                const imageIds = await getImageIds({ groupId: Number(id) });
+                const imagePromises = imageIds.map(async (imageId) => {
+                    const url = await fetchCroppedImage({
+                        groupId: Number(id),
+                        imageId: imageId,
+                        humanId: selectedMaskId,
+                    });
+                    return { imageId, url };
                 });
+                const imageObjects = await Promise.all(imagePromises);
+                setTargetImages(imageObjects.filter((obj) => obj.url !== null));
+        console.log(targetImages)
+            
             }
         };
 
         fetchTargetImage();
+        setSelectedFaceInfo({
+            groupId: Number(id),
+            humanId: selectedMaskId,
+            imageId: selectedMaskId,
+        });
     }, [selectedMaskId, id]);
+
+    const onClickChangeFace = () => {
+        setMode("changeFace");
+        setActiveTab("changeFace");
+    };
+
+    const onClickAddPeople = () => {
+        setMode("addPerson");
+        setActiveTab("addPerson");
+    };
 
     return (
         <Container>
@@ -135,13 +162,13 @@ export default function Edit({ loading }) {
             <BottomTab>
                 <TabButton
                     isActive={activeTab === "changeFace"}
-                    onClick={() => setActiveTab("changeFace")}
+                    onClick={onClickChangeFace}
                 >
                     얼굴바꾸기
                 </TabButton>
                 <TabButton
                     isActive={activeTab === "addPerson"}
-                    onClick={() => setActiveTab("addPerson")}
+                    onClick={onClickAddPeople}
                 >
                     사람 추가하기
                 </TabButton>
@@ -149,7 +176,10 @@ export default function Edit({ loading }) {
             <Bottom activeTab={activeTab}>
                 {activeTab === "changeFace" && (
                     <Content>
-                        <UserImageSlider images={targetImages} />
+                        <UserImageSlider
+                            images={targetImages}
+                            viewCount={targetImages.length}
+                        />
                     </Content>
                 )}
                 {activeTab === "addPerson" && (

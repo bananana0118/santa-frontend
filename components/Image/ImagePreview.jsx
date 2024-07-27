@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 export default function ImagePreview({ src, width, height }) {
-    console.log(width, height);
     return (
         <PreviewContainer width={width} height={height}>
             <PreviewImage src={src} alt="Preview" height={height} />

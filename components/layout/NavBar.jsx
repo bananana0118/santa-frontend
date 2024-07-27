@@ -6,6 +6,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { pageConfig } from "@/pagesConfig";
 import { useFile } from "./Provider";
 import extractPath from "@/utils/extractPath";
+import { api } from "@/apis/apis";
 
 export default function NavBar({ text, hasCompleteBtn }) {
     const router = useRouter();
@@ -14,10 +15,23 @@ export default function NavBar({ text, hasCompleteBtn }) {
 
     const pathName = extractPath(url, "/step");
     const showHeader = pageConfig[pathName]?.showHeader ?? false;
-    const { fileData } = useFile(); // Context 사용
+    const { fileData, mode, selectedFaceInfo } = useFile(); // Context 사용
     const { id } = params;
 
-    console.log(id);
+    const swapFaces = async () => {
+        console.log(selectedFaceInfo);
+        const requestData = {
+            ...selectedFaceInfo,
+        };
+
+        try {
+            const response = await api.post("/swap_faces", requestData);
+            console.log("Response:", response.data);
+        } catch (error) {
+            console.error("Error swapping faces:", error);
+        }
+    };
+
     const downloadImage = () => {
         if (fileData) {
             const link = document.createElement("a");
@@ -30,8 +44,14 @@ export default function NavBar({ text, hasCompleteBtn }) {
     };
 
     const onClickCompleteHandler = () => {
-        downloadImage();
-        router.push("/step/complete");
+        console.log(mode)
+        
+        if (mode == "changeFace") {
+            swapFaces()
+            router.push(`/${id}/step/complete`);
+        }
+        if (mode == "addPerson") {
+        }
     };
 
     return (

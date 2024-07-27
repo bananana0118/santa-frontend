@@ -19,10 +19,8 @@ export default function KakaoShare() {
                 content: {
                     title: "사진을 공유했어요!",
                     description: "사진을 확인해주세요",
-                    link: {
-                        mobileWebUrl: "",
-                        webUrl: "",
-                    },
+                    imageUrl: "",
+                    link: { mobileWebUrl: "", webUrl: "" },
                 },
             });
         }
@@ -53,6 +51,5 @@ export default function KakaoShare() {
 const KakaoShareBtn = styled.div`
     &:hover {
         cursor: pointer;
-   
     }
 `;

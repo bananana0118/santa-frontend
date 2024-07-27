@@ -56,14 +56,15 @@ const TextBox = styled.div`
     margin-top: 100px;
     flex-direction: column;
     justify-content: left;
+
 `;
 
 const ViewBox = styled.div`
-    padding: 10%;
+    padding: 10% 0 10% 0;
     display: flex;
-    gap: 30%;
     flex-direction: column;
     margin-bottom: 40px;
+    justify-content: space-between;
     align-items: center;
 `;
 
